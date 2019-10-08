@@ -10,6 +10,8 @@ based on [domvas by Paul Bakaus](https://github.com/pbakaus/domvas)
 and has been completely rewritten, with some bugs fixed and some new
 features (like web font and image support) added.
 
+Forked from [tsayen/dom-to-image](https://github.com/tsayen/dom-to-image) to remove font embedding.
+
 ## Installation
 
 ### NPM
