@@ -3,7 +3,7 @@
 
     var util = newUtil();
     var inliner = newInliner();
-    var fontFaces = newFontFaces();
+    // var fontFaces = newFontFaces();
     var images = newImages();
 
     // Default impl options
@@ -21,7 +21,7 @@
         toBlob: toBlob,
         toPixelData: toPixelData,
         impl: {
-            fontFaces: fontFaces,
+            // fontFaces: fontFaces,
             images: images,
             util: util,
             inliner: inliner,
@@ -57,7 +57,7 @@
             .then(function (node) {
                 return cloneNode(node, options.filter, true);
             })
-            .then(embedFonts)
+            // .then(embedFonts)
             .then(inlineImages)
             .then(applyOptions)
             .then(function (clone) {
@@ -309,15 +309,15 @@
         }
     }
 
-    function embedFonts(node) {
-        return fontFaces.resolveAll()
-            .then(function (cssText) {
-                var styleNode = document.createElement('style');
-                node.appendChild(styleNode);
-                styleNode.appendChild(document.createTextNode(cssText));
-                return node;
-            });
-    }
+    // function embedFonts(node) {
+    //     return fontFaces.resolveAll()
+    //         .then(function (cssText) {
+    //             var styleNode = document.createElement('style');
+    //             node.appendChild(styleNode);
+    //             styleNode.appendChild(document.createTextNode(cssText));
+    //             return node;
+    //         });
+    // }
 
     function inlineImages(node) {
         return images.inlineAll(node)
@@ -635,71 +635,71 @@
         }
     }
 
-    function newFontFaces() {
-        return {
-            resolveAll: resolveAll,
-            impl: {
-                readAll: readAll
-            }
-        };
+    // function newFontFaces() {
+    //     return {
+    //         resolveAll: resolveAll,
+    //         impl: {
+    //             readAll: readAll
+    //         }
+    //     };
 
-        function resolveAll() {
-            return readAll(document)
-                .then(function (webFonts) {
-                    return Promise.all(
-                        webFonts.map(function (webFont) {
-                            return webFont.resolve();
-                        })
-                    );
-                })
-                .then(function (cssStrings) {
-                    return cssStrings.join('\n');
-                });
-        }
+    //     function resolveAll() {
+    //         return readAll(document)
+    //             .then(function (webFonts) {
+    //                 return Promise.all(
+    //                     webFonts.map(function (webFont) {
+    //                         return webFont.resolve();
+    //                     })
+    //                 );
+    //             })
+    //             .then(function (cssStrings) {
+    //                 return cssStrings.join('\n');
+    //             });
+    //     }
 
-        function readAll() {
-            return Promise.resolve(util.asArray(document.styleSheets))
-                .then(getCssRules)
-                .then(selectWebFontRules)
-                .then(function (rules) {
-                    return rules.map(newWebFont);
-                });
+    //     function readAll() {
+    //         return Promise.resolve(util.asArray(document.styleSheets))
+    //             .then(getCssRules)
+    //             .then(selectWebFontRules)
+    //             .then(function (rules) {
+    //                 return rules.map(newWebFont);
+    //             });
 
-            function selectWebFontRules(cssRules) {
-                return cssRules
-                    .filter(function (rule) {
-                        return rule.type === CSSRule.FONT_FACE_RULE;
-                    })
-                    .filter(function (rule) {
-                        return inliner.shouldProcess(rule.style.getPropertyValue('src'));
-                    });
-            }
+    //         function selectWebFontRules(cssRules) {
+    //             return cssRules
+    //                 .filter(function (rule) {
+    //                     return rule.type === CSSRule.FONT_FACE_RULE;
+    //                 })
+    //                 .filter(function (rule) {
+    //                     return inliner.shouldProcess(rule.style.getPropertyValue('src'));
+    //                 });
+    //         }
 
-            function getCssRules(styleSheets) {
-                var cssRules = [];
-                styleSheets.forEach(function (sheet) {
-                    try {
-                        util.asArray(sheet.cssRules || []).forEach(cssRules.push.bind(cssRules));
-                    } catch (e) {
-                        console.log('Error while reading CSS rules from ' + sheet.href, e.toString());
-                    }
-                });
-                return cssRules;
-            }
+    //         function getCssRules(styleSheets) {
+    //             var cssRules = [];
+    //             styleSheets.forEach(function (sheet) {
+    //                 try {
+    //                     util.asArray(sheet.cssRules || []).forEach(cssRules.push.bind(cssRules));
+    //                 } catch (e) {
+    //                     console.log('Error while reading CSS rules from ' + sheet.href, e.toString());
+    //                 }
+    //             });
+    //             return cssRules;
+    //         }
 
-            function newWebFont(webFontRule) {
-                return {
-                    resolve: function resolve() {
-                        var baseUrl = (webFontRule.parentStyleSheet || {}).href;
-                        return inliner.inlineAll(webFontRule.cssText, baseUrl);
-                    },
-                    src: function () {
-                        return webFontRule.style.getPropertyValue('src');
-                    }
-                };
-            }
-        }
-    }
+    //         function newWebFont(webFontRule) {
+    //             return {
+    //                 resolve: function resolve() {
+    //                     var baseUrl = (webFontRule.parentStyleSheet || {}).href;
+    //                     return inliner.inlineAll(webFontRule.cssText, baseUrl);
+    //                 },
+    //                 src: function () {
+    //                     return webFontRule.style.getPropertyValue('src');
+    //                 }
+    //             };
+    //         }
+    //     }
+    // }
 
     function newImages() {
         return {
